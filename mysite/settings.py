@@ -38,9 +38,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -126,4 +129,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8000",
     "https://glowing-tribble-4v6xrw5vx5xcpjq-8000.github.dev",  # Замените на ваш адрес Codespaces
+    'http://localhost:5500'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True  # Разрешить все домены
+
+# Отключите перенаправления SSL (если используется)
+SECURE_SSL_REDIRECT = False

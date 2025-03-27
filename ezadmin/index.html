@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Лёгкая админка</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .block { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; }
+        button { background: #4CAF50; color: white; border: none; padding: 8px 15px; margin: 5px; cursor: pointer; }
+        button.delete { background: #f44336; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Лёгкая админка опросов</h1>
+
+    <!-- Добавление вопроса -->
+    <div class="block">
+        <h3>Добавить вопрос:</h3>
+        <textarea id="newQuestion" placeholder="Текст вопроса"></textarea>
+        <button onclick="addQuestion()">Добавить</button>
+    </div>
+
+    <!-- Добавление варианта -->
+    <div class="block">
+        <h3>Добавить вариант ответа:</h3>
+        <input type="number" id="questionId" placeholder="ID вопроса">
+        <input type="text" id="newChoice" placeholder="Текст варианта">
+        <button onclick="addChoice()">Добавить</button>
+    </div>
+
+    <!-- Удаление -->
+    <div class="block">
+        <h3>Удалить:</h3>
+        <input type="number" id="delQuestionId" placeholder="ID вопроса">
+        <button class="delete" onclick="deleteQuestion()">Удалить вопрос</button>
+        <br>
+        <input type="number" id="delChoiceId" placeholder="ID варианта">
+        <button class="delete" onclick="deleteChoice()">Удалить вариант</button>
+    </div>
+
+    <!-- Список вопросов -->
+    <div class="block">
+        <h3>Текущие вопросы:</h3>
+        <button onclick="loadQuestions()">Обновить</button>
+        <table id="questionsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Вопрос</th>
+                    <th>Варианты ответов</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = 'https://glowing-tribble-4v6xrw5vx5xcpjq-8000.app.github.dev/polls/api'; // Или ваш URL Codespace
+
+        // Загрузка вопросов
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`${API_URL}/questions/`);
+                const questions = await response.json();
+                const tbody = document.querySelector('#questionsTable tbody');
+                tbody.innerHTML = '';
+                
+                questions.forEach(q => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${q.id}</td>
+                        <td>${q.question_text}</td>
+                        <td>
+                            <ul style="margin:0; padding-left:20px;">
+                                ${q.choices?.map(c => 
+                                    `<li>${c.id}: ${c.choice_text} (голосов: ${c.votes})</li>`
+                                ).join('') || 'Нет вариантов'}
+                            </ul>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                alert('Ошибка загрузки: ' + error);
+            }
+        }
+
+        // Добавить вопрос
+        async function addQuestion() {
+            const text = document.getElementById('newQuestion').value;
+            if (!text) return alert('Введите текст вопроса');
+            
+            try {
+                const response = await fetch(`${API_URL}/questions/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question_text: text,
+                        pub_date: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('newQuestion').value = '';
+                    loadQuestions();
+                    alert('Вопрос добавлен!');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error);
+            }
+        }
+
+        // Добавить вариант
+        async function addChoice() {
+            const questionId = document.getElementById('questionId').value;
+            const text = document.getElementById('newChoice').value;
+            if (!questionId || !text) return alert('Заполните все поля');
+            
+            try {
+                const response = await fetch(`${API_URL}/choices/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: questionId,
+                        choice_text: text,
+                        votes: 0
+                    })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('newChoice').value = '';
+                    loadQuestions();
+                    alert('Вариант добавлен!');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error);
+            }
+        }
+
+        // Удалить вопрос
+        async function deleteQuestion() {
+            const id = document.getElementById('delQuestionId').value;
+            if (!id) return alert('Введите ID вопроса');
+            
+            try {
+                const response = await fetch(`${API_URL}/questions/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ delete_id: id })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('delQuestionId').value = '';
+                    loadQuestions();
+                    alert('Вопрос удалён!');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error);
+            }
+        }
+
+        // Удалить вариант
+        async function deleteChoice() {
+            const id = document.getElementById('delChoiceId').value;
+            if (!id) return alert('Введите ID варианта');
+            
+            try {
+                const response = await fetch(`${API_URL}/choices/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ delete_id: id })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('delChoiceId').value = '';
+                    loadQuestions();
+                    alert('Вариант удалён!');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error);
+            }
+        }
+
+        // Загружаем вопросы при старте
+        loadQuestions();
+    </script>
+</body>
+</html>

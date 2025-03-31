@@ -11,6 +11,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     </style>
+    <meta charset="UTF-8">
 </head>
 <body>
     <h1>Лёгкая админка опросов</h1>
@@ -38,6 +39,13 @@
         <br>
         <input type="number" id="delChoiceId" placeholder="ID варианта">
         <button class="delete" onclick="deleteChoice()">Удалить вариант</button>
+    </div>
+
+    <div class="block">
+        <h3>Редактировать вопрос:</h3>
+        <input type="number" id="editQuestionId" placeholder="ID вопроса">
+        <textarea id="editQuestionText" placeholder="Новый текст"></textarea>
+        <button onclick="updateQuestion()">Обновить</button>
     </div>
 
     <!-- Список вопросов -->
@@ -182,6 +190,31 @@
                 alert('Ошибка: ' + error);
             }
         }
+
+        async function updateQuestion() {
+    const id = document.getElementById('editQuestionId').value;
+    const text = document.getElementById('editQuestionText').value;
+
+    try {
+        const response = await fetch(`${API_URL}/questions/${id}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question_text: text
+            })
+        });
+
+        if (response.ok) {
+            alert('Вопрос обновлён!');
+            loadQuestions();
+        }
+    } catch (error) {
+        alert('Ошибка: ' + error);
+    }
+}
+
 
         // Загружаем вопросы при старте
         loadQuestions();

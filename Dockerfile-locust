@@ -1,0 +1,15 @@
+# Используйте официальный образ Python как базовый
+FROM python:3.12-slim
+
+# Установите зависимости
+RUN pip install locust
+
+# Скопируйте текущий файл в контейнер
+WORKDIR /app
+COPY locust-tests/lt1.py /app/
+
+# Откройте порт 8089 для веб-интерфейса Locust
+EXPOSE 8089
+
+# Запустите Locust при запуске контейнера
+CMD ["locust", "-f", "lt1.py", "--host=https://glowing-tribble-4v6xrw5vx5xcpjq-8000.app.github.dev/polls"]

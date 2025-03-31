@@ -1,0 +1,6 @@
+# Используйте официальный образ Nginx как базовый
+FROM nginx:latest
+
+# Скопируйте HTML-файлы в каталог Nginx
+COPY index.html /usr/share/nginx/html/
+COPY ezadmin/index.html /usr/share/nginx/html/ezadmin/

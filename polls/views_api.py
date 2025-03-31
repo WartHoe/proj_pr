@@ -32,6 +32,10 @@ class ChoiceListCreateView(generics.ListCreateAPIView):
                 return Response({'error': 'Choice not found'}, status=status.HTTP_404_NOT_FOUND)
         return super().post(request, *args, **kwargs)
 
+class QuestionDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
 @api_view(['POST'])
 def vote(request):
     try:
@@ -46,3 +50,4 @@ def vote(request):
         
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+

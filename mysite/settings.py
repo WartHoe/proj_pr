@@ -136,3 +136,5 @@ CORS_ALLOW_ALL_ORIGINS = True  # Разрешить все домены
 
 # Отключите перенаправления SSL (если используется)
 SECURE_SSL_REDIRECT = False
+
+DEFAULT_CHARSET = 'utf-8'
